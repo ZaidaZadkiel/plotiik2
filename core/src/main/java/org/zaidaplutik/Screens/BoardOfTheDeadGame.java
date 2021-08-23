@@ -237,7 +237,7 @@ public class BoardOfTheDeadGame  implements Screen {
             64,64);
 
         score();
-      skeledude.set(AnimatedSprite.Set.Running, true);
+      skeledude.set(AnimatedSprite.Set.Idle, true);
     }
   
     Decal makeNewDecal(AnimatedSprite sprite, float x, float y, float z, float centerX, float centerY){
@@ -336,17 +336,23 @@ public class BoardOfTheDeadGame  implements Screen {
       camera.up.set(0,-1,1);
       
       if(wasdqe[0] == 1) camera.position.y+=2;
-      if(wasdqe[1] == 1) camera.position.x-=2;
+//      if(wasdqe[1] == 1) camera.position.x-=2;
       if(wasdqe[2] == 1) camera.position.y-=2;
-      if(wasdqe[3] == 1) camera.position.x+=2;
+//      if(wasdqe[3] == 1) camera.position.x+=2;
       if(wasdqe[4] == 1) camera.position.z-=2;
       if(wasdqe[5] == 1) camera.position.z+=2;
 
-      if(UDLR[0] == 1) skeletonRect.y += 0.5f;
-      if(UDLR[1] == 1) skeletonRect.y -= 0.5f;
+      if(UDLR[0] == 1)  skeletonRect.y += 0.5f;
+      if(UDLR[1] == 1)  skeletonRect.y -= 0.5f;
       if(UDLR[2] == 1) {skeletonRect.x -= 0.5f; pestBirb.setScaleX(-0.5f); }
       if(UDLR[3] == 1) {skeletonRect.x += 0.5f; pestBirb.setScaleX( 0.5f); }
       
+      if(UDLR[0]==1 || UDLR[1]==1 || UDLR[2]==1 || UDLR[3]==1) {
+        skeledude.set(AnimatedSprite.Set.Running, true);
+      } else {
+        skeledude.set(AnimatedSprite.Set.Idle, true);
+      }
+
 //      pestBirb.getRotation().set(camerax, .5f, camerax, 0f);
       
       camera.update();
@@ -972,10 +978,20 @@ public class BoardOfTheDeadGame  implements Screen {
                   case Input.Keys.Q: wasdqe[4]=1; return true;
                   case Input.Keys.E: wasdqe[5]=1; return true;
                   
-                  case Input.Keys.UP:    UDLR[0]=1; return true;
-                  case Input.Keys.DOWN:  UDLR[1]=1; return true;
-                  case Input.Keys.LEFT:  UDLR[2]=1; return true;
-                  case Input.Keys.RIGHT: UDLR[3]=1; return true;
+                  case Input.Keys.UP:
+                    UDLR[0]=1;
+                    return true;
+                  case Input.Keys.DOWN:
+                    UDLR[1]=1;
+                    return true;
+                  case Input.Keys.LEFT:  {
+                    UDLR[2]=1;
+                    return true;
+                  }
+                  case Input.Keys.RIGHT: {
+                    UDLR[3]=1;
+                    return true;
+                  }
                 }
                 return false;
             }
@@ -994,10 +1010,19 @@ public class BoardOfTheDeadGame  implements Screen {
                     case Input.Keys.Q: wasdqe[4]=0; return true;
                     case Input.Keys.E: wasdqe[5]=0; return true;
   
-                  case Input.Keys.UP:    UDLR[0]=0; return true;
-                  case Input.Keys.DOWN:  UDLR[1]=0; return true;
-                  case Input.Keys.LEFT:  UDLR[2]=0; return true;
-                  case Input.Keys.RIGHT: UDLR[3]=0; return true;
+                  case Input.Keys.UP:
+                    UDLR[0]=0;
+                    return true;
+                  case Input.Keys.DOWN:
+                    UDLR[1]=0;
+                    return true;
+                  case Input.Keys.LEFT:
+                    UDLR[2]=0;
+                    return true;
+                  case Input.Keys.RIGHT:
+                    UDLR[3]=0;
+                    return true;
+                  
                   case Input.Keys.P: {
                     choosenGLfunc = (choosenGLfunc+1) % gl_func.length;
                     return true;
