@@ -290,7 +290,7 @@ public class BoardOfTheDeadGame  implements Screen {
     @SuppressWarnings("DefaultLocale")
     @Override
     public void render(float delta) {
-        camerax += 10*delta;
+        camerax += delta;
         Vector3 v = camera.position;
 //        v.add(0,-0.1f,0.2f);
 //        camera.position.set(v);
@@ -344,9 +344,10 @@ public class BoardOfTheDeadGame  implements Screen {
 
       if(UDLR[0] == 1) skeletonRect.y += 0.5f;
       if(UDLR[1] == 1) skeletonRect.y -= 0.5f;
-      if(UDLR[2] == 1) {skeletonRect.x -= 0.5f;  }
-      if(UDLR[3] == 1) {skeletonRect.x += 0.5f; pestBirb.setRotation(0,50,0); }
+      if(UDLR[2] == 1) {skeletonRect.x -= 0.5f; pestBirb.setScaleX(-0.5f); }
+      if(UDLR[3] == 1) {skeletonRect.x += 0.5f; pestBirb.setScaleX( 0.5f); }
       
+//      pestBirb.getRotation().set(camerax, .5f, camerax, 0f);
       
       camera.update();
       skeledude.update(delta);
@@ -360,7 +361,6 @@ public class BoardOfTheDeadGame  implements Screen {
   
       pestBirb.setTextureRegion(skeledude.getFrame());
       pestBirb.setPosition(skeletonRect.x, skeletonRect.y, 0);
-      pestBirb.setRotationX(camerax)
 
       
 //      castle.translateZ(0.05f);
@@ -402,6 +402,7 @@ public class BoardOfTheDeadGame  implements Screen {
       
        bf.draw(parent.batch, String.format(
             "x: %8.2f y: %8.2f w: %8.2f z: %8.2f\n"
+            + "camerax %8.2f"
 //            + "Space to switch depth test: %s\n"
 //            + "WASD camera, arrows birb\n"
 //            + "depth func %s"
@@ -409,7 +410,8 @@ public class BoardOfTheDeadGame  implements Screen {
           pestBirb.getRotation().x,
           pestBirb.getRotation().y,
           pestBirb.getRotation().w,
-          pestBirb.getRotation().z
+          pestBirb.getRotation().z,
+          camerax
 //          cameraStrategy.getBuffer() ? "using buffar" : "buffer off",
 //          gl_funcName[choosenGLfunc]
         ), 10,690);

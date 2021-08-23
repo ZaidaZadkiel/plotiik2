@@ -210,9 +210,12 @@ public class WeirdGroupStrategy implements GroupStrategy, Disposable {
       + "void main()\n" //
       + "{\n" //
       + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
-//      + "   v_color.a = v_color.a * (255.0/254.0);\n" //
+      + "   v_color.a = v_color.a * (255.0/254.0);\n" //
       + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
       + "   gl_Position =  u_projectionViewMatrix * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+//      + "   v_color.a = (gl_Position.y * -0.005 ) + 2;"
+//      + "   v_color.g = (-300+gl_Position.y) * (255.0/254.0) * -0.01;"
+//      + "   v_color.b = (-300+gl_Position.y) * (255.0/254.0) * -0.01;"
       + "}\n";
     
     String fragmentShader = "#ifdef GL_ES\n" //
@@ -225,6 +228,7 @@ public class WeirdGroupStrategy implements GroupStrategy, Disposable {
       + "{\n" //
       + "  vec4 texture = texture2D(u_texture, v_texCoords);\n" //
       + "  if(texture.a < 0.1){ discard; }"
+//      + "  v_color.r = gl_FragColor.z*10;\n" //
       + "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" //
       + "}";
     
