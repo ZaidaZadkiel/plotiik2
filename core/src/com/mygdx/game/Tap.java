@@ -16,14 +16,16 @@ import com.mygdx.game.Utility.TimePlayed;
 public class Tap extends Game {
 	public SpriteBatch batch;
 
-	public final static int MENUSCREEN = 0;
-	public final static int GAMESCREEN = 1;
-	public static final int OPTIONSCREEN = 2;
-	public static final int HALLOFFAMESCREEN = 3;
-	public static final int ABOUTSCREEN = 4;
-	public static final int SKELEDODGE = 5;
-	public static final int FLAPPYBIRD = 6;
-	public static final int BOARDOTD = 7;
+	public enum Screens {
+		MENUSCREEN,
+		GAMESCREEN,
+		OPTIONSCREEN,
+		HALLOFFAMESCREEN,
+		ABOUTSCREEN,
+		SKELEDODGE,
+		FLAPPYBIRD,
+		BOARDOTD
+	};
 
 	OrthographicCamera camera;
 	private Menu menu;
@@ -107,7 +109,7 @@ public class Tap extends Game {
 			optionsCfg.loadHighScore();
 		}
 
-		screenChanger(MENUSCREEN);
+		screenChanger(Screens.MENUSCREEN);
 	}
 
 	@Override
@@ -135,7 +137,7 @@ public class Tap extends Game {
 		getPreferences().saveHighScore();
 	}
 
-	public void screenChanger(int screen) {
+	public void screenChanger(Screens screen) {
 		Screen old = this.screen;
 		switch (screen) {
 			case MENUSCREEN:
@@ -169,8 +171,8 @@ public class Tap extends Game {
 				if (boardofthedead == null) boardofthedead = new BoardOfTheDeadGame(this);
 				this.setScreen(boardofthedead);
 				break;
-
 		}
+
 		if(old!=null && old != this.screen){
 			System.out.println("changed screen");
 			old.dispose();

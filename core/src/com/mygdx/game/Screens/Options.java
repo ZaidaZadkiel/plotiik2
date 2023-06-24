@@ -66,7 +66,7 @@ public class Options implements Screen {
         backBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                parent.screenChanger(Tap.MENUSCREEN);
+                parent.screenChanger(Tap.Screens.MENUSCREEN);
                 stage.clear();
             }
         });

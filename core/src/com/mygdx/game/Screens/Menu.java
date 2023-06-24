@@ -284,26 +284,6 @@ public class Menu implements Screen, InputProcessor {
     }
   );
 
-
-
-//  Anim selectgame = new Anim(
-//    "selectgame",
-//    2500,0,
-//    new Texture[]{
-//      new Texture("menu/ui/frame0000-2.png"),
-//      new Texture("menu/ui/frame0001-2.png")
-//    }
-//  );
-//
-//  Anim optionsmenu = new Anim(
-//    "optionsmenu",
-//    -4000,-100,
-//    new Texture[]{
-//      new Texture("menu/ui/frame0000-0.png"),
-//      new Texture("menu/ui/frame0001-0.png")
-//    }
-//  );
-
   Anim hand = new Anim(
     "optionshand",
     -1600,150,
@@ -320,8 +300,6 @@ public class Menu implements Screen, InputProcessor {
       new Texture("menu/ui/frame0000-1.png")
     }
   );
-
-
 
   Anim anims[] = {
     skeletodd,
@@ -410,7 +388,23 @@ public class Menu implements Screen, InputProcessor {
       @Override
       public boolean touched() {
         selected=spider;
+        System.out.println("selected" + selected.name);
         return true;
+      }
+    };
+
+    botd.touchable.action= new touchAction() {
+      @Override
+      public boolean touched() {
+        parent.screenChanger(Tap.Screens.BOARDOTD);
+        return false;
+      }
+    };
+    dodge.touchable.action= new touchAction() {
+      @Override
+      public boolean touched() {
+        parent.screenChanger(Tap.Screens.SKELEDODGE);
+        return false;
       }
     };
 //    System.out.println("fren "+fren[i].getWidth()+", "+fren[i].getHeight());
@@ -486,6 +480,7 @@ public class Menu implements Screen, InputProcessor {
   float spiderlerp = 0;
   Vector2 spiderorigin = new Vector2();
   Vector2 spidertarget = new Vector2();
+  Vector2 spiderdyn    = new Vector2();
   @Override
   public void render(float delta) {
     c += delta;
@@ -538,14 +533,36 @@ public class Menu implements Screen, InputProcessor {
       Gdx.gl.glEnable(GL20.GL_BLEND);
       Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+
+      if(!spiderdragging && c-spiderlerp <5f){
+        if(spiderdyn.len2()>0.1f){
+
+          tmp.set(spidertarget);
+          tmp.sub(spiderorigin);
+          float f = tmp.len()*0.1f;
+          tmp.nor();
+          tmp.scl(f);
+
+          spiderdyn.scl(0.9f);
+          spiderdyn.add(tmp);
+          //float f = spiderdyn.angleRad();
+          spiderorigin.add(spiderdyn);
+        }
+
+        spider.x=spiderorigin.x;
+        spider.y=spiderorigin.y;
+//          spider.update(c);
+      }
+
       shape.begin(ShapeRenderer.ShapeType.Filled);
         shape.setColor(1,1,0,c%0.5f);
         shape.ellipse(selected.x, selected.y, selected.tex[0].getWidth(),selected.tex[0].getHeight());
 
 
         shape.setColor(Color.BLACK);
+
         shape.rectLine(
-          (viewport.getScreenWidth()*-4.26f),
+          (viewport.getWorldWidth()*-1.15f),
           1550f,
           spider.x+(spider.tex[0].getWidth()/2f),
           spider.y+(spider.tex[0].getHeight()/2f),
@@ -556,31 +573,18 @@ public class Menu implements Screen, InputProcessor {
       batch.begin();
         batch.setColor(1,1,1,pb);
 
-        if(!spiderdragging && c-spiderlerp <5f){
-          spiderorigin.lerp(spidertarget, (c-spiderlerp)/5f);
-          spider.x=spiderorigin.x;
-          spider.y=spiderorigin.y;
-//          spider.update(c);
-        }
-        for (Anim anim : anims) {
-          anim.update(c);
-          anim.draw(batch);
-        }
-//        papyr.draw(batch);
-//
-//        pestbirb.draw(batch);
-//        skeletodd.draw(batch);
-//
-//        hand.draw(batch);
-//        spider.draw(batch);
-//        tomb.draw(batch);
 
         tmp.set(pos.x, pos.y);
         viewport.unproject(tmp);
         frenpos.rotate(5f,1,1,-1);
         fren.x = tmp.x+frenpos.x-(fren.tex[0].getWidth()/2f);
         fren.y = tmp.y+frenpos.y-(fren.tex[0].getHeight()/2f);
-//        fren.draw(batch);
+
+        for (Anim anim : anims) {
+          anim.update(c);
+          anim.draw(batch);
+        }
+
 
       batch.end();
 
@@ -615,13 +619,6 @@ public class Menu implements Screen, InputProcessor {
     for (Anim a: anims) {
       a.resize(viewport);
     }
-
-
-//    frenratio = (
-//        Math.min(viewport.getWorldHeight(), viewport.getWorldWidth())
-//      / (float)fren[0].getHeight()
-//    ) / Gdx.graphics.getDensity();
-//    System.out.println("frenratio: "+viewport.getWorldHeight() + ", "+ fren[0].getHeight()+" - "+frenratio );
 
     batch.setProjectionMatrix(viewport.getCamera().combined);
     shape.setProjectionMatrix(viewport.getCamera().combined);
@@ -661,7 +658,9 @@ public class Menu implements Screen, InputProcessor {
     }
 
     if(keycode == Input.Keys.SPACE){
-      bx = 0;
+      spiderorigin.set(0,0);
+      spider.x = 0;
+      spider.y = 0;
     }
 //    if(currentBackground==1 && (keycode == Input.Keys.LEFT || keycode == Input.Keys.RIGHT)){
 //      selected=(selected==skeletodd) ? pestbirb : skeletodd;
@@ -712,8 +711,10 @@ public class Menu implements Screen, InputProcessor {
     worlddrag.set(camera.position.x, camera.position.y);
     tmp.set(screenX, screenY);
     viewport.unproject(tmp);
+
     if(selected==spider && spider.touchable.contains(tmp.x, tmp.y)){
       spiderdragging = true;
+      System.out.println("spider");
       return true;
     }
     touchPosition(screenX,screenY, 1); /* left button = 0 */
@@ -725,7 +726,18 @@ public class Menu implements Screen, InputProcessor {
   public boolean touchUp(int screenX, int screenY, int pointer, int button) {
     if(spiderdragging){
       spiderorigin.set(spider.x, spider.y);
-      spidertarget.set((viewport.getScreenWidth()*-4.26f),1550f);
+      // FIX
+//      spidertarget.set(0, 1000);
+      spidertarget.set(
+        (viewport.getWorldWidth()*-1.15f) - (spider.tex[0].getWidth()/2f) ,
+        1050f - (spider.tex[0].getWidth()/2f)
+      );
+
+      spiderdyn.set(spidertarget);
+      spiderdyn.sub(spiderorigin);
+      f = spiderdyn.len();
+      spiderdyn.nor();
+      spiderdyn.scl(f/6f);
       spiderlerp = c;
     }
     spiderdragging = false;
@@ -753,7 +765,11 @@ public class Menu implements Screen, InputProcessor {
     if(selected==spider && spiderdragging){
       spider.x = tmp.x-(spider.tex[0].getWidth()/2f);
       spider.y = tmp.y-(spider.tex[0].getWidth()/2f);
+      System.out.println("spider drag");
       return false;
+    }else if(spider.touchable.contains(tmp.x, tmp.y)){
+      spiderdragging=true;
+      return true;
     }
 
     /* magic */

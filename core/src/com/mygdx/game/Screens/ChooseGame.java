@@ -103,7 +103,7 @@ public class ChooseGame implements Screen {
         backBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                parent.screenChanger(Tap.MENUSCREEN);
+                parent.screenChanger(Tap.Screens.MENUSCREEN);
                 stage.clear();
             }
         });
@@ -111,7 +111,7 @@ public class ChooseGame implements Screen {
         skeleDodge.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                parent.screenChanger(Tap.SKELEDODGE);
+                parent.screenChanger(Tap.Screens.SKELEDODGE);
                 stage.clear();
             }
         });
@@ -119,7 +119,7 @@ public class ChooseGame implements Screen {
         boardotd.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                parent.screenChanger(Tap.BOARDOTD);
+                parent.screenChanger(Tap.Screens.BOARDOTD);
                 stage.clear();
             }
         });
