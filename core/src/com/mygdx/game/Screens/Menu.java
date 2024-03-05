@@ -16,11 +16,17 @@ import com.mygdx.game.Tap;
 
 import java.util.Arrays;
 
+//TODO: implement AssetManager
+
 public class Menu implements Screen, InputProcessor {
   private Tap parent;
   OrthographicCamera camera = new OrthographicCamera();;
   private Viewport viewport = new ExtendViewport(2000, 2000, camera) ;
   boolean slider = false;
+
+  /** flag true indicates drag event on spider anim */
+  boolean spiderdragging = false;
+
 
   private class Touchable{
     Rectangle r = new Rectangle();
@@ -460,26 +466,24 @@ public class Menu implements Screen, InputProcessor {
       camera.position.x < -viewport.getScreenWidth() ? (w*-5) : (w),0,
       viewport.getWorldWidth(), viewport.getWorldHeight()
     );
-
-
-//    batch.draw(background[0],
-//      ((bx-(w)) % (w*3))-w,0,
-//      viewport.getWorldWidth(), viewport.getWorldHeight()
-//    );
-//
-//    batch.draw(background[1],
-//      ((bx) % (w*3))-w,0,
-//      viewport.getWorldWidth(), viewport.getWorldHeight()
-//    );
-//
-//    batch.draw(background[2],
-//      ((bx+w) % (w*3))-w,0,
-//      viewport.getWorldWidth(), viewport.getWorldHeight()
-//    );
   }
+
+  /** c time at the spider movement animation start */
   float spiderlerp = 0;
+  /** 0..1.0f volume strength */
+  float spidervolume;
+  /** world pos for branch control x 0 */
+  float midx = (viewport.getWorldWidth()*-1.15f);
+  /** world pos for branch control y 0 */
+  float midy = 1550f;
+  /** world size for the volume control circle */
+  static final float spidervolumelength =1200.0f;
+
+  /** spider position at touchup */
   Vector2 spiderorigin = new Vector2();
+  /** spider position end position */
   Vector2 spidertarget = new Vector2();
+  /** spider position per frame delta */
   Vector2 spiderdyn    = new Vector2();
   @Override
   public void render(float delta) {
@@ -513,8 +517,9 @@ public class Menu implements Screen, InputProcessor {
     batch.setColor(1,1,1,1);
       renderBackground(batch);
 //      title.draw(batch);
-      bf.draw(batch, "Select your player character", 120,120);
-      bf.draw(batch, "Selected anim " + selected.name, -1200,120);
+      bf.draw(batch, "Select your player character", -1200,120);
+
+      bf.draw(batch, "Pick volume " + Math.round(spidervolume*100) + "%", -4200,120);
     batch.end();
 
     if(c>3f){
@@ -558,7 +563,6 @@ public class Menu implements Screen, InputProcessor {
         shape.setColor(1,1,0,c%0.5f);
         shape.ellipse(selected.x, selected.y, selected.tex[0].getWidth(),selected.tex[0].getHeight());
 
-
         shape.setColor(Color.BLACK);
 
         shape.rectLine(
@@ -568,6 +572,16 @@ public class Menu implements Screen, InputProcessor {
           spider.y+(spider.tex[0].getHeight()/2f),
           10f
         );
+
+        if(spiderdragging){
+
+          shape.setColor(126f/255f, 182f/255f, 60f/255f, 0.25f);
+          shape.circle(midx, midy, spidervolumelength);
+          shape.setColor(1, 0.8f, 116f/255f, 0.125f);
+          shape.circle(midx, midy, spidervolumelength /1.5f);
+          shape.setColor(1, 97f/255f, 50f/255f, 0.25f);
+          shape.circle(midx, midy, spidervolumelength /4f);
+        }
       shape.end();
 
       batch.begin();
@@ -619,6 +633,7 @@ public class Menu implements Screen, InputProcessor {
     for (Anim a: anims) {
       a.resize(viewport);
     }
+    midx = (viewport.getWorldWidth()*-1.15f);
 
     batch.setProjectionMatrix(viewport.getCamera().combined);
     shape.setProjectionMatrix(viewport.getCamera().combined);
@@ -641,7 +656,6 @@ public class Menu implements Screen, InputProcessor {
 
   @Override
   public void dispose() {
-
   }
 
   public Menu(Tap tap) {
@@ -704,7 +718,6 @@ public class Menu implements Screen, InputProcessor {
 
   Vector2 screendrag = new Vector2();
   Vector2 worlddrag = new Vector2();
-  boolean spiderdragging = false;
 
   @Override
   public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -728,9 +741,12 @@ public class Menu implements Screen, InputProcessor {
       spiderorigin.set(spider.x, spider.y);
       // FIX
 //      spidertarget.set(0, 1000);
+//      tmp.set(spidertarget);
+//      tmp.sub(spiderorigin);
+
       spidertarget.set(
-        (viewport.getWorldWidth()*-1.15f) - (spider.tex[0].getWidth()/2f) ,
-        1050f - (spider.tex[0].getWidth()/2f)
+        midx-(spider.tex[0].getWidth()/2f),
+        midy - (spider.tex[0].getHeight()/2f) - (spidervolume* spidervolumelength)// - (spider.tex[0].getWidth()/2f) + ((f*100)/100)
       );
 
       spiderdyn.set(spidertarget);
@@ -764,8 +780,16 @@ public class Menu implements Screen, InputProcessor {
     viewport.unproject(tmp);
     if(selected==spider && spiderdragging){
       spider.x = tmp.x-(spider.tex[0].getWidth()/2f);
-      spider.y = tmp.y-(spider.tex[0].getWidth()/2f);
-      System.out.println("spider drag");
+      spider.y = tmp.y-(spider.tex[0].getHeight()/2f);
+
+      tmp.set(midx,midy);
+      tmp.sub(
+        spider.x+(spider.tex[0].getWidth()/2f),
+        spider.y+(spider.tex[0].getHeight()/2f)
+      );
+      spidervolume = Math.min(tmp.len()/spidervolumelength, 1f);
+//      System.out.println("spider drag " + tmp.len());
+
       return false;
     }else if(spider.touchable.contains(tmp.x, tmp.y)){
       spiderdragging=true;
